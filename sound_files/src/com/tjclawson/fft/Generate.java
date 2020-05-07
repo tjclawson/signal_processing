@@ -11,33 +11,36 @@ public class Generate {
 
         // declare constants
         float sampleRate = 44100;
-        double frequency = 261.626;
+        double frequency1 = 261.626;
+        double frequency2 = 329.628;
         double amplitude = 0.5;
-        double twoPiF = 2 * Math.PI * frequency;
+        double twoPiFreq1 = 2 * Math.PI * frequency1;
+        double twoPiFreq2 = 2 * Math.PI * frequency2;
 
         // initialize array to store floating point value representing wave form
-        double[] buffer = new double[44100];
+        double[] buffer = new double[44100 * 2];
 
         // populate buffer for each sample
         for (int sample = 0; sample < buffer.length; sample++) {
             double time = sample / sampleRate;
-            buffer[sample] = amplitude * Math.sin(twoPiF * time);
+            buffer[sample] = amplitude * (Math.sin(twoPiFreq1 * time) + Math.sin(twoPiFreq2 * time)) /2;
         }
 
         // initialize array to store corresponding byte encoding of each buffer value
-        final byte[] byteBuffer = new byte[buffer.length];
+        final byte[] byteBuffer = new byte[buffer.length * 2];
 
         // convert floating point values to signed byte values (-128 to 127)e
         int index = 0;
         for (int i = 0; i < byteBuffer.length; ) {
-            int x = (int) (buffer[index++] * 127);
+            int x = (int) (buffer[index++] * 32767);
             byteBuffer[i++] = (byte) x;
+            byteBuffer[i++] = (byte) (x >>> 8);
         }
 
         // declare audio format
         boolean bigEndian = false;
         boolean signed = true;
-        int bits = 8;
+        int bits = 16;
         int channels = 1;
         AudioFormat format = new AudioFormat(sampleRate, bits, channels, signed, bigEndian);
 
